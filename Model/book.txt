@@ -1,0 +1,21 @@
+Started with creating a sequential dense model, loss was in the millions and acc 0
+This was with no pre-processing or dim reduction
+
+After I tried with the same model after normalizing all inputs/outputs on the range 0-1
+255 is the max a stat can be so that is easy to normalize
+Leaving us with normalizing usage, which we can do by totaling all usages for the top 60 pokemon
+and then dividing each individual's total by the overall total.
+This obviously lowered loss as we were now delaing with much smallers values, but we still had 0 acc
+
+Throughout this we realized our inputs were incredibly sparse, 575 inputs with the vast majority being 0s
+We figured this was a major players in our complete lack of accuracy and thus we began experimenting with autoencoders
+
+We began by creating an autoencoder which would only encode the sparse areas of our inputs, since we did the one-hot encoding, we knew
+that all of those values would be sparse. As the stats for all pokemon will always be filled, we decided to avoid using our encoder
+to reduce their dimentionality as we wanted to ensure those values remained unchanged.
+
+Now with this problem on our hands we wanted to compare the preformances of two different techniques to rey and see which one created
+a more accruate encoding, thus we tried both fc and conv autoencoders and experimented to make each as accurate as possible, thus we
+could compare the two to see which offered us more accurate encodings with hopes that would lead to less loss in out final model as our
+encodings would be better. 
+
