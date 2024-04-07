@@ -13,18 +13,14 @@ def pokemon_usage_model():
 
 	model = tf.keras.Sequential([
 		tf.keras.layers.Dense(units = 575, input_shape=(575,), activation = 'relu'),
-		tf.keras.layers.Dense(units = 1150, activation = 'relu'),
-		tf.keras.layers.Dense(units = 300, activation = 'relu'),
-		tf.keras.layers.Dense(units = 100, activation = 'relu'),
-		tf.keras.layers.Dense(units = 30, activation = 'relu'),
+		tf.keras.layers.Dense(units = 6, activation = 'relu'),
 		tf.keras.layers.Dense(1, activation='relu')
 	])
 
 	model.compile(optimizer='adam',
-					loss='mean_squared_error',
-					metrics=['accuracy'])
+					loss='mean_squared_error')
 
-	model.fit(training_generator, validation_data = validation_generator, epochs = 10, verbose=1)
+	model.fit(training_generator, validation_data = validation_generator, epochs = 15, verbose=1)
 
 	training_performance = model.evaluate(training_generator)
 	validation_performance = model.evaluate(validation_generator)
@@ -42,17 +38,18 @@ def pokemon_usage_model_dim_reduced(encoder):
 	validation_generator = generator.PokemonGeneratorDimReduced("Validation", encoder)
 
 	model = tf.keras.Sequential([
-		tf.keras.layers.Dense(units = 32, input_shape=(41,), activation = 'relu'),
-		tf.keras.layers.Dense(units = 16, activation = 'relu'),
+		tf.keras.layers.Dense(units = 12, input_shape=(12,), activation = 'relu'),
+		tf.keras.layers.Dense(units = 10, activation = 'relu'),
+		tf.keras.layers.Dense(units = 6, activation = 'relu'),
+		tf.keras.layers.Dense(units = 4, activation = 'relu'),
 		tf.keras.layers.Dense(units = 2, activation = 'relu'),
 		tf.keras.layers.Dense(1, activation='relu')
 	])
+	optimizer = tf.keras.optimizers.Adam(learning_rate=0.1)
+	model.compile(optimizer=optimizer,
+					loss='mean_squared_error')
 
-	model.compile(optimizer='adam',
-					loss='mean_squared_error',
-					metrics=['accuracy'])
-
-	model.fit(training_generator, validation_data = validation_generator, epochs = 10, verbose=1)
+	model.fit(training_generator, validation_data = validation_generator, epochs = 15, verbose=1)
 
 	training_performance = model.evaluate(training_generator)
 	validation_performance = model.evaluate(validation_generator)
@@ -70,14 +67,14 @@ def pokemon_autoencoder():
 	validation_generator = generator.PokemonGeneratorEncoder("Validation")
 
 	encoder_input = tf.keras.layers.Input(shape=(569))
-	encoded = tf.keras.layers.Dense(300, activation='relu')(encoder_input)
-	encoded = tf.keras.layers.Dense(150, activation='relu')(encoded)
+	encoded = tf.keras.layers.Dense(400, activation='relu')(encoder_input)
+	encoded = tf.keras.layers.Dense(200, activation='relu')(encoded)
 	encoded = tf.keras.layers.Dense(6, activation='relu')(encoded)
 	encoder = tf.keras.Model(encoder_input, encoded)
 
 	decoder_input = tf.keras.layers.Input(shape=(6))
-	decoded = tf.keras.layers.Dense(150, activation='relu')(decoder_input)
-	decoded = tf.keras.layers.Dense(300, activation='relu')(decoded)
+	decoded = tf.keras.layers.Dense(200, activation='relu')(decoder_input)
+	decoded = tf.keras.layers.Dense(400, activation='relu')(decoded)
 	decoded = tf.keras.layers.Dense(569, activation='relu')(decoded)
 	decoder = tf.keras.Model(decoder_input, decoded)
 
@@ -89,7 +86,7 @@ def pokemon_autoencoder():
 	optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
 	autoencoder.compile(loss="mean_squared_error", optimizer=optimizer, metrics=["accuracy"])
 
-	autoencoder.fit(training_generator, validation_data = validation_generator, epochs = 15, verbose=1)
+	autoencoder.fit(training_generator, validation_data = validation_generator, epochs = 5, verbose=1)
 
 	training_performance = autoencoder.evaluate(training_generator)
 	validation_performance = autoencoder.evaluate(validation_generator)
@@ -99,9 +96,21 @@ def pokemon_autoencoder():
 	# validation_performance is the performance of the autoencoder on the validation set
 	return autoencoder, training_performance, validation_performance, encoder
 
+# CHUNK OF CODE TO TEST AUTOENCODER
+# autoencoder, Atrain, Aval, encoder = pokemon_autoencoder()
+# print(Atrain)
+# print(Aval)
+
+# CHUNK OF CODE TO TEST MODEL dim red
 autoencoder, Atrain, Aval, encoder = pokemon_autoencoder()
-print(Atrain)
-print(Aval)
+model, train, val = pokemon_usage_model_dim_reduced(encoder)
+print(train)
+print(val)
+
+# CHUNK OF CODE TO TEST MODEL
+# model, train, val = pokemon_usage_model()
+# print(train)
+# print(val)
 
 # CHUNK OF CODE TO TEST WHAT PREDICTIONS LOOK LIKE ON FINAL NET
 # autoencoder, Atrain, Aval, encoder = pokemon_autoencoder()

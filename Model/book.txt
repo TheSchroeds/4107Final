@@ -14,8 +14,24 @@ We began by creating an autoencoder which would only encode the sparse areas of 
 that all of those values would be sparse. As the stats for all pokemon will always be filled, we decided to avoid using our encoder
 to reduce their dimentionality as we wanted to ensure those values remained unchanged.
 
-Now with this problem on our hands we wanted to compare the preformances of two different techniques to rey and see which one created
-a more accruate encoding, thus we tried both fc and conv autoencoders and experimented to make each as accurate as possible, thus we
-could compare the two to see which offered us more accurate encodings with hopes that would lead to less loss in out final model as our
-encodings would be better. 
+Now as we had identified a possible problem, we wanted to create the best autoencoder we could to ensure our dimentionaly reduction
+did not result in a large loss of data quality. Thus we continued experiementing and iterating on our encoder until we were happy
+with the resutls. 
 
+After we had tested many different autoencoder archetectures we settled on one which produced the highest accuracy among all tested
+in order to use in our final netowrk.
+
+Next we wanted to test some data normalization techniques before implementing our dim-reduced model. For this we compared the performances
+of our model on non-normalized data, and on data which is pre-processed to be on the range 0,1. Thus instead of total stat and total usage
+we avergaged both with their totals to ensure the data was much lower.
+
+
+25051260 +  22493406 + 18295101 + 12653089 + 15215828 + 12313966 + 17386506 + 35253416 + 13404204 + 16050768 + 16288145 + 16002006
+220407695
+98700353536/220407695 = 447.8081
+220407695 * 0.0001668 = 36764.0035
+
+12833931 + 10865610 + 12442520
+36142061
+33361537024/36142061 = 923.0668
+36142061 * 0.0001410 = 5096.0306

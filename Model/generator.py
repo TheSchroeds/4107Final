@@ -74,17 +74,25 @@ class PokemonGenerator(tf.keras.utils.Sequence):
 		y = []
 		for line in data[line_index + 5 : line_index + 5 + self.batch_size]: # Shave off first 5 common lines and ensure only include the top 60 pokemon
 			pokemon.append(line.split("|")[2].strip())
-			y.append(float(line.split("|")[4].strip()) / self.usage_totals[file_index]) # Normalize usage to range 0-1 using total usage in file
+			# y.append(float(line.split("|")[4].strip()) / self.usage_totals[file_index]) # Normalize usage to range 0-1 using total usage in file
+			y.append(float(line.split("|")[4].strip())) # no norm
 
 		x = []
 		for mon in pokemon:
 			# Grab the pokemon's stats from the file (255 is the max size for any stat)
-			stats = [self.pokedex[mon]['hp']/255, 
-					 self.pokedex[mon]['atk']/255, 
-					 self.pokedex[mon]['def']/255, 
-					 self.pokedex[mon]['spa']/255, 
-					 self.pokedex[mon]['spd']/255, 
-					 self.pokedex[mon]['spe']/255]
+			# stats = [self.pokedex[mon]['hp']/255, 
+			# 		 self.pokedex[mon]['atk']/255, 
+			# 		 self.pokedex[mon]['def']/255, 
+			# 		 self.pokedex[mon]['spa']/255, 
+			# 		 self.pokedex[mon]['spd']/255, 
+			# 		 self.pokedex[mon]['spe']/255]
+
+			stats = [self.pokedex[mon]['hp'], 
+					 self.pokedex[mon]['atk'], 
+					 self.pokedex[mon]['def'], 
+					 self.pokedex[mon]['spa'], 
+					 self.pokedex[mon]['spd'], 
+					 self.pokedex[mon]['spe']]
 			
 			# Create a one-hot encoded array of length moves and encode the pokemon's moves
 			moves = np.zeros(len(self.move_encoding))
@@ -229,6 +237,7 @@ class PokemonGeneratorDimReduced(tf.keras.utils.Sequence):
 		for line in data[line_index + 5 : line_index + 5 + self.batch_size]: # Shave off first 5 common lines and ensure only include the top 60 pokemon
 			pokemon.append(line.split("|")[2].strip())
 			y.append(float(line.split("|")[4].strip()) / self.usage_totals[file_index]) # Normalize usage to range 0-1 using total usage in file
+			# y.append(float(line.split("|")[4].strip())) # no norm
 
 		x = []
 		for mon in pokemon:
@@ -239,7 +248,12 @@ class PokemonGeneratorDimReduced(tf.keras.utils.Sequence):
 					 self.pokedex[mon]['spa']/255, 
 					 self.pokedex[mon]['spd']/255, 
 					 self.pokedex[mon]['spe']/255]
-			
+			# stats = [self.pokedex[mon]['hp'], 
+			# 		 self.pokedex[mon]['atk'], 
+			# 		 self.pokedex[mon]['def'], 
+			# 		 self.pokedex[mon]['spa'], 
+			# 		 self.pokedex[mon]['spd'], 
+			# 		 self.pokedex[mon]['spe']]
 			# Create a one-hot encoded array of length moves and encode the pokemon's moves
 			moves = np.zeros(len(self.move_encoding))
 			moveTypes = ["move1", "move2", "move3", "move4"]
@@ -263,7 +277,7 @@ class PokemonGeneratorDimReduced(tf.keras.utils.Sequence):
 					types[self.type_encoding[self.pokedex[mon][tipe]]] = 1
 
 			info = np.concatenate((moves, ability, item, types))
-			dim_reduced_sparse = self.encoder.predict(tf.reshape(np.array(info), (1,569))) # Only encode sparse areas
-			xline = np.concatenate((stats, tf.reshape(dim_reduced_sparse, (35))))
+			dim_reduced_sparse = self.encoder.predict(tf.reshape(np.array(info), (1,569)), verbose=0) # Only encode sparse areas
+			xline = np.concatenate((stats, tf.reshape(dim_reduced_sparse, (6))))
 			x.append(xline)
 		return np.array(x), np.array(y)
